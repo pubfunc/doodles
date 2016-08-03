@@ -195,7 +195,6 @@ function draw(timestamp){
 
   window.requestAnimationFrame(draw);
 
-  pulse(timestamp);
 
 
   //console.debug('draw');
@@ -236,6 +235,7 @@ function draw(timestamp){
         // context.fill();
       }
   }
+  pulse(timestamp);
 
 }
 
