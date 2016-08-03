@@ -12,7 +12,7 @@ var PARTICLE_COUNT = 5000;
 //var GAMMA = 66.73 * Math.pow(10,-12);
 var GAMMA = 0.05;
 
-var TERMINAL_VELOCITY = 0.003;
+var TERMINAL_VELOCITY = 0.005;
 
 var WIDTH = 1024;
 var HEIGHT = 1024;
@@ -65,15 +65,14 @@ function pulse(timestamp){
 
   //console.log(t);
 
-
-
-
+  var ml = massives.length;
+  var pl = particles.length;
   // each massive
-  for(var j = 0; j < massives.length; j++){
+  for(var j = 0; j < ml; j++){
 
     G_m = GAMMA * massives[j].weight;
 
-    for(var i = 0; i < particles.length; i++){
+    for(var i = 0; i < pl; i++){
 
       //  - Particles are low mass objects moving within frictionless space
       //  - Massives are extremely high mass and is not affected by gravity
@@ -165,7 +164,7 @@ function setup(){
     for (var i=0;i<data.length;i+=4)
     {
       var avg = (data[i] + data[i +1] + data[i +2]) / 3;
-      if(Math.random() < 0.5 && avg < 150){
+      if(Math.random() < 0.3 && avg < 150){
         var px = (i / 4) % iw;
         var py = ((i / 4) / iw) + 20;
 
