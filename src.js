@@ -7,10 +7,10 @@ var context = $canvas.getContext('2d');
 
 
 
-var PARTICLE_COUNT = 12000;
+var PARTICLE_COUNT = 5000;
 
 //var GAMMA = 66.73 * Math.pow(10,-12);
-var GAMMA = 0.00005;
+var GAMMA = 0.05;
 
 var TERMINAL_VELOCITY = 0.001;
 
@@ -118,17 +118,19 @@ function setup(){
     particles.push(new Particle(Math.random()*WIDTH,Math.random()*HEIGHT, 'rgb(' + [Math.round(Math.random() * 250), Math.round(Math.random() * 250), Math.round(Math.random() * 250)].join(',') + ')'));
   }
 
-  massives.push(new Massive(Math.random()*WIDTH,Math.random()*HEIGHT,Math.random() * 1000000));
-  massives.push(new Massive(Math.random()*WIDTH,Math.random()*HEIGHT,Math.random() * 1000000));
-  massives.push(new Massive(Math.random()*WIDTH,Math.random()*HEIGHT,Math.random() * 1000000));
+  // massives.push(new Massive(Math.random()*WIDTH,Math.random()*HEIGHT,Math.random() * 1000000));
+  // massives.push(new Massive(Math.random()*WIDTH,Math.random()*HEIGHT,Math.random() * 1000000));
+  // massives.push(new Massive(Math.random()*WIDTH,Math.random()*HEIGHT,Math.random() * 1000000));
   //massives.push(new Massive(Math.random()*WIDTH,Math.random()*HEIGHT,Math.random() * 1000000));
 
-  window.setInterval(draw, 33);
+  massives.push(new Massive(400,400,10000000.00));
+
+  //window.setInterval(draw, 20);
 
 }
 
 function draw(){
-  //requestAnimationFrame(draw);
+  //;
   //console.debug('draw');
   pulse();
 
@@ -167,7 +169,7 @@ function draw(){
         // context.fill();
       }
   }
-
+  requestAnimationFrame(draw);
 
 }
 
@@ -180,5 +182,5 @@ function toColor(num) {
 }
 
 setup();
-
+requestAnimationFrame(draw);
 //draw();
