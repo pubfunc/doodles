@@ -12,12 +12,13 @@ var PARTICLE_COUNT = 5000;
 //var GAMMA = 66.73 * Math.pow(10,-12);
 var GAMMA = 0.05;
 
-var TERMINAL_VELOCITY = 0.001;
+var TERMINAL_VELOCITY = 0.003;
 
-var WIDTH = 800;
-var HEIGHT = 800;
+var WIDTH = 1024;
+var HEIGHT = 1024;
 
-var lastPulseTime = (new Date).getTime();
+var start = null;
+var lastPulseTime = null;
 
 //
 // particle
@@ -31,6 +32,7 @@ var lastPulseTime = (new Date).getTime();
 
 var particles = [];
 var massives = [];
+
 
 function Particle(pos_x, pos_y, color){
   this.pos_x = pos_x;
@@ -50,17 +52,20 @@ function Massive(pos_x, pos_y, weight){
 }
 
 
-function pulse(){
+var dx, dy, r, nx, ny, a, v, G_m;
+function pulse(timestamp){
 
 
   // update particles
+  if(!lastPulseTime) lastPulseTime = timestamp;
 
   // delta t in seconds
-  var t = ((new Date).getTime() - lastPulseTime);
+  //var t = ((new Date).getTime() - lastPulseTime);
+  var t = Math.round(timestamp - lastPulseTime);
 
-  lastPulseTime = (new Date).getTime();
+  //console.log(t);
 
-  var dx, dy, r, nx, ny, a, v, G_m;
+
 
 
   // each massive
@@ -107,6 +112,8 @@ function pulse(){
     //console.log(particles[i].vel);
   }
 
+  lastPulseTime = timestamp;
+
 }
 
 function setup(){
@@ -114,28 +121,89 @@ function setup(){
   $canvas.width = WIDTH;
   $canvas.height = HEIGHT;
 
-  for(var i = 0; i < PARTICLE_COUNT; i++){
-    particles.push(new Particle(Math.random()*WIDTH,Math.random()*HEIGHT, 'rgb(' + [Math.round(Math.random() * 250), Math.round(Math.random() * 250), Math.round(Math.random() * 250)].join(',') + ')'));
-  }
+  // for(var i = 0; i < PARTICLE_COUNT; i++){
+  //   particles.push(new Particle(Math.random()*WIDTH,Math.random()*HEIGHT, 'rgb(' + [Math.round(Math.random() * 250), Math.round(Math.random() * 250), Math.round(Math.random() * 250)].join(',') + ')'));
+  // }
 
   // massives.push(new Massive(Math.random()*WIDTH,Math.random()*HEIGHT,Math.random() * 1000000));
   // massives.push(new Massive(Math.random()*WIDTH,Math.random()*HEIGHT,Math.random() * 1000000));
   // massives.push(new Massive(Math.random()*WIDTH,Math.random()*HEIGHT,Math.random() * 1000000));
   //massives.push(new Massive(Math.random()*WIDTH,Math.random()*HEIGHT,Math.random() * 1000000));
 
-  massives.push(new Massive(400,400,10000000.00));
+  massives.push(new Massive(500,500,100.00));
 
   //window.setInterval(draw, 20);
+  //
+  var logoImg = context.createImageData(1000,1000);
 
+  var rgba = {
+    r: 0,
+    g: 0,
+    b: 0,
+    a: 0
+  };
+
+  var iw= 300;
+  var ih= 232;
+  var image = new Image('img');
+  // var imageCanvas = document.createElement('canvas');
+  // var imageCtx = imageCanvas.getContext('2d');
+
+  image.onload = function(){
+
+
+    console.log('image loaded');
+
+    context.drawImage(image, 0, 0, iw, ih);
+
+    var pixels = 0;
+    var imageData = context.getImageData(0,0,iw,ih);
+    var data = imageData.data;
+
+    var h = (WIDTH / iw) * ih;
+
+    for (var i=0;i<data.length;i+=4)
+    {
+      var avg = (data[i] + data[i +1] + data[i +2]) / 3;
+      if(Math.random() < 0.5 && avg < 150){
+        var px = (i / 4) % iw;
+        var py = ((i / 4) / iw) + 20;
+
+        particles.push(new Particle(Math.round(px / iw * WIDTH),Math.round(py / ih * h), 'rgb(' + [Math.round(Math.random() * 250), Math.round(Math.random() * 250), Math.round(Math.random() * 250)].join(',') + ')'));
+
+        pixels++;
+      }
+    }
+
+    //context.putImageData(imageData, 0, 0);
+
+    //console.log('pixels', pixels, px, py);
+
+    image.style.display = 'none';
+
+    requestAnimationFrame(draw);
+  };
+
+  image.src = 'logo.png'; //300,232
 }
 
-function draw(){
-  //;
+function draw(timestamp){
+
+  //console.log(timestamp);
+
+  if (!start) start = timestamp;
+  var progress = timestamp - start;
+
+  window.requestAnimationFrame(draw);
+
+  pulse(timestamp);
+
+
   //console.debug('draw');
-  pulse();
 
+  context.fillStyle = '#000';
   context.clearRect(0, 0, WIDTH, HEIGHT);
-
+  //context.fillRect(0, 0, WIDTH, HEIGHT);
 
   //console.log(Math.round(Math.sqrt(particles[0].vel_x * particles[0].vel_x + particles[0].vel_y * particles[0].vel_y)));
 
@@ -155,12 +223,12 @@ function draw(){
   context.fillStyle = '#ffffff'; //toColor(Math.round(Math.sqrt(particles[i].vel_x * particles[i].vel_x + particles[i].vel_y * particles[i].vel_y) * 5000000));
 
   //draw particles
+  var size = 2;//Math.round(1 / ((particles[i].vel + 0.01) * 50));
   for(var i = 0; i < particles.length; i++){
       //draw a circle
       if(particles[i].pos_x > 0 && particles[i].pos_y > 0 && particles[i].pos_x < WIDTH && particles[i].pos_y < HEIGHT){
 
         context.fillStyle = particles[i].color;
-        var size = 1 / ((particles[i].vel + 0.01) * 60)  ;
 
         context.fillRect(particles[i].pos_x, particles[i].pos_y, size, size);
         // context.beginPath();
@@ -169,7 +237,6 @@ function draw(){
         // context.fill();
       }
   }
-  requestAnimationFrame(draw);
 
 }
 
@@ -182,5 +249,5 @@ function toColor(num) {
 }
 
 setup();
-requestAnimationFrame(draw);
+
 //draw();
