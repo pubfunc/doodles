@@ -12,7 +12,7 @@ var PARTICLE_COUNT = 5000;
 //var GAMMA = 66.73 * Math.pow(10,-12);
 var GAMMA = 0.05;
 
-var TERMINAL_VELOCITY = 0.005;
+var TERMINAL_VELOCITY = 0.001;
 
 var WIDTH = 1024;
 var HEIGHT = 1024;
@@ -129,7 +129,8 @@ function setup(){
   // massives.push(new Massive(Math.random()*WIDTH,Math.random()*HEIGHT,Math.random() * 1000000));
   //massives.push(new Massive(Math.random()*WIDTH,Math.random()*HEIGHT,Math.random() * 1000000));
 
-  massives.push(new Massive(500,500,100.00));
+  massives.push(new Massive(300,450,100.00));
+  massives.push(new Massive(700,450,100.00));
 
   //window.setInterval(draw, 20);
   //
@@ -208,15 +209,15 @@ function draw(timestamp){
   context.fillStyle = '#222222';
 
   // draw massives
-  for(i = 0; i < massives.length; i++){
-    //draw a circle
-    if(massives[i].pos_x > 0 && massives[i].pos_y > 0 && massives[i].pos_x < WIDTH && massives[i].pos_y < HEIGHT){
-      context.beginPath();
-      context.arc(massives[i].pos_x, massives[i].pos_y, 10, 0, Math.PI*2, true);
-      context.closePath();
-      context.fill();
-    }
-  }
+  // for(i = 0; i < massives.length; i++){
+  //   //draw a circle
+  //   if(massives[i].pos_x > 0 && massives[i].pos_y > 0 && massives[i].pos_x < WIDTH && massives[i].pos_y < HEIGHT){
+  //     context.beginPath();
+  //     context.arc(massives[i].pos_x, massives[i].pos_y, 10, 0, Math.PI*2, true);
+  //     context.closePath();
+  //     context.fill();
+  //   }
+  // }
 
   context.fillStyle = '#ffffff'; //toColor(Math.round(Math.sqrt(particles[i].vel_x * particles[i].vel_x + particles[i].vel_y * particles[i].vel_y) * 5000000));
 
