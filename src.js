@@ -7,7 +7,7 @@ var context = $canvas.getContext('2d');
 
 
 
-var PARTICLE_COUNT = 5000;
+var PARTICLE_COUNT = 3000;
 
 //var GAMMA = 66.73 * Math.pow(10,-12);
 var GAMMA = 0.05;
@@ -129,12 +129,13 @@ function setup(){
   // massives.push(new Massive(Math.random()*WIDTH,Math.random()*HEIGHT,Math.random() * 1000000));
   //massives.push(new Massive(Math.random()*WIDTH,Math.random()*HEIGHT,Math.random() * 1000000));
 
-  massives.push(new Massive(300,450,100.00));
-  massives.push(new Massive(700,450,100.00));
+  massives.push(new Massive(500,100,50.00));
+  massives.push(new Massive(200,450,50.00));
+  massives.push(new Massive(800,450,100.00));
 
   //window.setInterval(draw, 20);
   //
-  var logoImg = context.createImageData(1000,1000);
+  var logoImg = context.createImageData(100,100);
 
   var rgba = {
     r: 0,
@@ -165,7 +166,7 @@ function setup(){
     for (var i=0;i<data.length;i+=4)
     {
       var avg = (data[i] + data[i +1] + data[i +2]) / 3;
-      if(Math.random() < 0.3 && avg < 150){
+      if(Math.random() < 0.3 && avg > 100){
         var px = (i / 4) % iw;
         var py = ((i / 4) / iw) + 20;
 
@@ -184,7 +185,7 @@ function setup(){
     requestAnimationFrame(draw);
   };
 
-  image.src = 'logo.png'; //300,232
+  image.src = 'path6250.png'; //300,232
 }
 
 function draw(timestamp){
