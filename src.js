@@ -129,9 +129,10 @@ function setup(){
   // massives.push(new Massive(Math.random()*WIDTH,Math.random()*HEIGHT,Math.random() * 1000000));
   //massives.push(new Massive(Math.random()*WIDTH,Math.random()*HEIGHT,Math.random() * 1000000));
 
-  massives.push(new Massive(500,100,50.00));
-  massives.push(new Massive(200,450,50.00));
-  massives.push(new Massive(800,450,100.00));
+  // massives.push(new Massive(500,300,80.00));
+  // massives.push(new Massive(200,650,80.00));
+  // massives.push(new Massive(800,650,80.00));
+ 
 
   //window.setInterval(draw, 20);
   //
@@ -166,7 +167,7 @@ function setup(){
     for (var i=0;i<data.length;i+=4)
     {
       var avg = (data[i] + data[i +1] + data[i +2]) / 3;
-      if(Math.random() < 0.3 && avg > 100){
+      if(Math.random() < 0.2 && avg < 200 && data[i + 3] > 0.1){
         var px = (i / 4) % iw;
         var py = ((i / 4) / iw) + 20;
 
@@ -250,5 +251,7 @@ function toColor(num) {
 }
 
 setup();
+
+
 
 //draw();
