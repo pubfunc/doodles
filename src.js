@@ -186,7 +186,7 @@ function setup(){
     requestAnimationFrame(draw);
   };
 
-  image.src = 'path6250.png'; //300,232
+  image.src = 'cc.png'; //300,232
 }
 
 function draw(timestamp){
