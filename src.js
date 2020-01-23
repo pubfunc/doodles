@@ -34,6 +34,7 @@ var particles = [];
 var massives = [];
 
 
+
 function Particle(pos_x, pos_y, color){
   this.pos_x = pos_x;
   this.pos_y = pos_y;
@@ -120,22 +121,19 @@ function setup(){
   $canvas.width = WIDTH;
   $canvas.height = HEIGHT;
 
-  // for(var i = 0; i < PARTICLE_COUNT; i++){
-  //   particles.push(new Particle(Math.random()*WIDTH,Math.random()*HEIGHT, 'rgb(' + [Math.round(Math.random() * 250), Math.round(Math.random() * 250), Math.round(Math.random() * 250)].join(',') + ')'));
-  // }
+  // $canvas.addEventListener('mousemove', function(e){
+  //   massives[0].pos_x = e.offsetX;
+  //   massives[0].pos_y = e.offsetY;
+  // });
 
-  // massives.push(new Massive(Math.random()*WIDTH,Math.random()*HEIGHT,Math.random() * 1000000));
-  // massives.push(new Massive(Math.random()*WIDTH,Math.random()*HEIGHT,Math.random() * 1000000));
-  // massives.push(new Massive(Math.random()*WIDTH,Math.random()*HEIGHT,Math.random() * 1000000));
-  //massives.push(new Massive(Math.random()*WIDTH,Math.random()*HEIGHT,Math.random() * 1000000));
-
-  // massives.push(new Massive(500,300,80.00));
-  // massives.push(new Massive(200,650,80.00));
-  // massives.push(new Massive(800,650,80.00));
+  $canvas.addEventListener('click', function(e){
+    massives.push({
+      pos_x: e.offsetX,
+      pos_y: e.offsetY,
+      weight: 1
+    });
+  });
  
-
-  //window.setInterval(draw, 20);
-  //
   var logoImg = context.createImageData(100,100);
 
   var rgba = {
@@ -148,8 +146,6 @@ function setup(){
   var iw= 300;
   var ih= 232;
   var image = new Image('img');
-  // var imageCanvas = document.createElement('canvas');
-  // var imageCtx = imageCanvas.getContext('2d');
 
   image.onload = function(){
 
@@ -177,51 +173,40 @@ function setup(){
       }
     }
 
-    //context.putImageData(imageData, 0, 0);
-
-    //console.log('pixels', pixels, px, py);
+    console.log('pixels', pixels, px, py);
 
     image.style.display = 'none';
 
     requestAnimationFrame(draw);
   };
 
-  image.src = 'cc.png'; //300,232
+  // image.src = 'cc.png'; //300,232
+  image.src = 'path6250.png'; //300,232
 }
 
 function draw(timestamp){
-
-  //console.log(timestamp);
 
   if (!start) start = timestamp;
   var progress = timestamp - start;
 
   window.requestAnimationFrame(draw);
 
-
-
-  //console.debug('draw');
-
   context.fillStyle = '#000';
   context.clearRect(0, 0, WIDTH, HEIGHT);
-  //context.fillRect(0, 0, WIDTH, HEIGHT);
-
-  //console.log(Math.round(Math.sqrt(particles[0].vel_x * particles[0].vel_x + particles[0].vel_y * particles[0].vel_y)));
-
-  context.fillStyle = '#222222';
+  context.fillStyle = '#555';
 
   // draw massives
-  // for(i = 0; i < massives.length; i++){
-  //   //draw a circle
-  //   if(massives[i].pos_x > 0 && massives[i].pos_y > 0 && massives[i].pos_x < WIDTH && massives[i].pos_y < HEIGHT){
-  //     context.beginPath();
-  //     context.arc(massives[i].pos_x, massives[i].pos_y, 10, 0, Math.PI*2, true);
-  //     context.closePath();
-  //     context.fill();
-  //   }
-  // }
+  for(i = 0; i < massives.length; i++){
+    //draw a circle
+    if(massives[i].pos_x > 0 && massives[i].pos_y > 0 && massives[i].pos_x < WIDTH && massives[i].pos_y < HEIGHT){
+      context.beginPath();
+      context.arc(massives[i].pos_x, massives[i].pos_y, 10, 0, Math.PI*2, true);
+      context.closePath();
+      context.fill();
+    }
+  }
 
-  context.fillStyle = '#ffffff'; //toColor(Math.round(Math.sqrt(particles[i].vel_x * particles[i].vel_x + particles[i].vel_y * particles[i].vel_y) * 5000000));
+  context.fillStyle = '#ffffff';
 
   //draw particles
   var size = 2;//Math.round(1 / ((particles[i].vel + 0.01) * 50));
@@ -253,5 +238,3 @@ function toColor(num) {
 setup();
 
 
-
-//draw();

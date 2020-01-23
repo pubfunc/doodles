@@ -2,33 +2,27 @@
   <head>
 
     <title>Particle Physics | Elementree</title>
-
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta property="og:url"                content="http://particle.elementree.co.za/" />
     <meta property="og:type"               content="article" />
     <meta property="og:title"              content="Particle Physics | Elementree" />
     <meta property="og:description"        content="HTML Canvas gravity physics simulator" />
     <meta property="og:image"              content="http://particle.elementree.co.za/particle.png" />
-    <style>
-    html{
-      background-color: #000;
-      margin: 0;
-    }
-      #particle_canvas{
-        max-height: 100%;
-        max-width: 100%;
-        /*height: 100%;*/
-        background-color: #000;
-        margin: 0 auto;
-        display: block;
-      }
-    </style>
+    <link rel="stylesheet" href="styles.css">
   </head>
   <body>
+
+    <div class="toolbar">
+      <button type="button" id="run_button">R</button>
+      <button type="button" id="massive_button">M</button>
+      <button type="button" id="particle_button">P</button>
+      <button type="button" id="clear_button">X</button>
+    </div>
+
     <canvas id="particle_canvas"></canvas>
-    <script src="src.js"></script>
-    <script>
-      massives.push(new Massive(510,460,80.00));
-      // massives.push(new Massive(350,460,80.00));
-    </script>
+  
+    <script src="simulator.js"></script>
+    <script src="controls.js"></script>
+    <script src="main.js"></script>
   </body>
 </html>
