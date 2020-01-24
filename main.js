@@ -2,14 +2,19 @@
 
 
 
-let canvas = new Simulator(document.getElementById('particle_canvas'));
+let sim = new Simulator(document.getElementById('particle_canvas'));
+
+sim.addParticle(new Particle(1000, 100, 100, null));
+sim.addParticle(new Particle(1000, 100, 200, null));
+
 
 document.onload = function(){
-    canvas.alignCanvas();
+    sim.alignCanvas();
 };
 
 window.onresize = function(){
-    canvas.alignCanvas();
+    sim.alignCanvas();
 };
 
-console.log('init');
+sim.alignCanvas();
+sim.pulse();
