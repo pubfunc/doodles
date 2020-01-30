@@ -2,8 +2,8 @@
 
 class Simulator {
 
-    softening = 2;
-    terminal_velocity = 2;
+    softening = 30;
+    terminal_force = 0.01;
     gamma = 0.9;
     scale = 1;
 
@@ -16,14 +16,19 @@ class Simulator {
     origin_x = 0;
     origin_y = 0;
 
-    bound_left = -300;
-    bound_right = 300;
-    bound_top = -300;
-    bound_bottom = 300;
+    bound_left = -1000;
+    bound_right = 1000;
+    bound_top = -1000;
+    bound_bottom = 1000;
+
+
 
     constructor(canvas$){
         this.canvas$ = canvas$;
         this.context = canvas$.getContext('2d');
+
+
+
     }
 
     addParticle(particle){
@@ -60,7 +65,7 @@ class Simulator {
 
         let l = this.particles.length;
 
-        const t = 1; //ts - this.last_pulse;
+        const t = 0.5; //ts - this.last_pulse;
 
         // update acceleration vectors
         for(let i = 0; i < l; i++){
@@ -80,7 +85,7 @@ class Simulator {
                 const ds = (dx * dx) + (dy * dy);
 
                 // calc force exterted by pj on pi
-                const fi = (this.gamma * pj.m) / (ds * Math.sqrt(ds + this.softening));
+                const fi = Math.min(this.terminal_force, (this.gamma * pj.m) / (ds * Math.sqrt(ds + this.softening)));
 
                 ax += dx * fi;
                 ay += dy * fi;
@@ -171,14 +176,16 @@ class Simulator {
             const x = this.origin_x + pi.x;
             const y = this.origin_y + pi.y;
 
-            // draw tail
+            // draw trail
             let trail_size = pi.size,
-                trail_op = 0.7,
+                trail_size_mod = pi.size / pi.trail_length,
+                trail_opacity = 0.5,
+                trail_opacity_mod = pi.vel() / 100,
                 j = pi.trail_i;
 
             do{
                 if(pi.trail[j]){
-                    this.context.fillStyle = `rgba(255,255,255,${trail_op})`;
+                    this.context.fillStyle = `rgba(255,255,255,${trail_opacity})`;
                     this.context.beginPath();
                     this.context.arc(
                         this.origin_x + pi.trail[j].x,
@@ -187,8 +194,8 @@ class Simulator {
                         0, 2*Math.PI
                     );
                     this.context.fill();
-                    trail_size -= 0.1;
-                    trail_op -= 0.05;
+                    trail_size = Math.max(trail_size - trail_size_mod, 0);
+                    trail_opacity = Math.max(trail_opacity - trail_opacity_mod, 0);
                 }
 
                 if(j <= 0){
@@ -200,7 +207,7 @@ class Simulator {
             }while(j !== pi.trail_i);
 
             // draw particle
-            this.context.fillStyle = 'blue';
+            this.context.fillStyle = 'magenta';
             this.context.beginPath();
             this.context.arc(x, y, pi.size, 0, 2*Math.PI);
             this.context.fill();
@@ -210,6 +217,13 @@ class Simulator {
             this.context.beginPath();
             this.context.moveTo(x, y);
             this.context.lineTo(x + (pi.vx * 5), y + (pi.vy * 5));
+            this.context.stroke();
+
+            // draw acc
+            this.context.strokeStyle = 'red';
+            this.context.beginPath();
+            this.context.moveTo(x, y);
+            this.context.lineTo(x + (pi.ax * 100), y + (pi.ay * 100));
             this.context.stroke();
 
             // draw tooltips
@@ -233,8 +247,7 @@ class Simulator {
 class Particle {
 
     trail_i = 0;
-    trail_length = 30;
-    trail = new Array(this.trail_length);
+
 
     constructor(params){
         this.color = params.color || '#fff';
@@ -247,5 +260,25 @@ class Particle {
         this.ay = params.ay || 0;
         this.size = params.size || 4;
         this.label = params.label || 'X';
+        this.trail_length = 10;
+        this.trail = new Array(this.trail_length);
     }
+
+    acc(){
+        return Math.sqrt(this.ax*this.ax + this.ay * this.ay);
+    }
+
+    vel(){
+        return Math.sqrt(this.vx*this.vx + this.vy * this.vy);
+    }
+
+}
+
+class ParticleCanon {
+
+    x1 = 0;
+    x2 = 0;
+    y1 = 0;
+    y0 = 0;
+
 }
