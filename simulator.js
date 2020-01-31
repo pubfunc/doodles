@@ -1,13 +1,16 @@
 
+const GAMMA = 5; // 6.673e-11; // gravitational constant
+const SOLAR_MASS = 1.98892e30;
+const EPS = 20; //1.98892e30; // softening parameter (to avoid infinities)
 
 class Simulator {
 
-    softening = 30;
     terminal_force = 0.01;
-    gamma = 0.9;
     scale = 1;
+    time_scale = 0.1;
 
     particles = [];
+    init_particles = [];
     last_pulse = 0;
     is_running = false;
 
@@ -16,25 +19,26 @@ class Simulator {
     origin_x = 0;
     origin_y = 0;
 
-    bound_left = -1000;
-    bound_right = 1000;
-    bound_top = -1000;
-    bound_bottom = 1000;
+    bound_left = -2000;
+    bound_right = 2000;
+    bound_top = -2000;
+    bound_bottom = 2000;
 
 
+    constructor(canvas$, particleData){
 
-    constructor(canvas$){
+        this.init_particles = particleData;
+
         this.canvas$ = canvas$;
         this.context = canvas$.getContext('2d');
-
-
-
     }
 
-    addParticle(particle){
-        this.particles.push(particle);
+    reset(){
+        this.stop();
+        let data = JSON.parse(JSON.stringify(this.init_particles));
+        this.particles = data.map(data => new Particle(data));
+        this.draw();
     }
-
 
     start(){
         this.is_running = true;
@@ -65,35 +69,19 @@ class Simulator {
 
         let l = this.particles.length;
 
-        const t = 0.5; //ts - this.last_pulse;
+        const t = this.time_scale; //ts - this.last_pulse;
 
         // update acceleration vectors
         for(let i = 0; i < l; i++){
 
-            // total acc
-            let ax = 0, ay = 0;
             const pi = this.particles[i];
+            pi.resetForce();
 
             for(let j = 0; j < l; j++){
                 if(i === j) continue;
-
                 const pj = this.particles[j];
-
-                // calc distance between particles
-                const dx = pj.x - pi.x;
-                const dy = pj.y - pi.y;
-                const ds = (dx * dx) + (dy * dy);
-
-                // calc force exterted by pj on pi
-                const fi = Math.min(this.terminal_force, (this.gamma * pj.m) / (ds * Math.sqrt(ds + this.softening)));
-
-                ax += dx * fi;
-                ay += dy * fi;
-
+                pi.addForce(pj);
             }
-
-            pi.ax = Math.round(ax * 1000) / 1000;
-            pi.ay = Math.round(ay * 1000) / 1000;
 
         }
 
@@ -102,37 +90,37 @@ class Simulator {
         for(let i = 0; i < l; i++){
             const pi = this.particles[i];
 
-            if(!pi.trail[pi.trail_i] || pi.trail[pi.trail_i].x !== pi.x || pi.trail[pi.trail_i].y !== pi.y){
-                pi.trail_i++;
+            // if(!pi.trail[pi.trail_i] || pi.trail[pi.trail_i].x !== pi.x || pi.trail[pi.trail_i].y !== pi.y){
+            //     pi.trail_i++;
 
-                if(pi.trail_i >= (pi.trail_length - 1)){
-                    pi.trail_i = 0;
-                }
+            //     if(pi.trail_i >= (pi.trail_length - 1)){
+            //         pi.trail_i = 0;
+            //     }
 
-                pi.trail[pi.trail_i] = {x: pi.x, y: pi.y};
-            }
+            //     pi.trail[pi.trail_i] = {x: pi.x, y: pi.y};
+            // }
 
-            pi.vx += pi.ax * t;
-            pi.vy += pi.ay * t;
-
-            pi.x += pi.vx * t;
-            pi.y += pi.vy * t;
+            pi.updateVectors(t);
 
 
             if(pi.x <= this.bound_left && pi.vx < 0){
                 pi.vx *= -1;
+                pi.x = this.bound_left;
             }
 
             if(pi.x >= this.bound_right && pi.vx > 0){
                 pi.vx *= -1;
+                pi.x = this.bound_right;
             }
 
             if(pi.y <= this.bound_top && pi.vy < 0){
                 pi.vy *= -1;
+                pi.y = this.bound_top;
             }
 
             if(pi.y >= this.bound_bottom && pi.vy > 0){
                 pi.vy *= -1;
+                pi.y = this.bound_bottom;
             }
 
 
@@ -153,13 +141,13 @@ class Simulator {
         this.context.clearRect(0, 0, w, h);
 
         // draw origin
-        this.context.strokeStyle = 'grey';
-        this.context.beginPath();
-        this.context.moveTo(this.origin_x, this.origin_y - 10);
-        this.context.lineTo(this.origin_x, this.origin_y + 10);
-        this.context.moveTo(this.origin_x - 10, this.origin_y);
-        this.context.lineTo(this.origin_x + 10, this.origin_y);
-        this.context.stroke();
+        // this.context.strokeStyle = 'grey';
+        // this.context.beginPath();
+        // this.context.moveTo(this.origin_x, this.origin_y - 10);
+        // this.context.lineTo(this.origin_x, this.origin_y + 10);
+        // this.context.moveTo(this.origin_x - 10, this.origin_y);
+        // this.context.lineTo(this.origin_x + 10, this.origin_y);
+        // this.context.stroke();
 
         // draw boundary
         this.context.strokeStyle = 'grey';
@@ -176,63 +164,78 @@ class Simulator {
             const x = this.origin_x + pi.x;
             const y = this.origin_y + pi.y;
 
-            // draw trail
-            let trail_size = pi.size,
-                trail_size_mod = pi.size / pi.trail_length,
-                trail_opacity = 0.5,
-                trail_opacity_mod = pi.vel() / 100,
-                j = pi.trail_i;
-
-            do{
-                if(pi.trail[j]){
-                    this.context.fillStyle = `rgba(255,255,255,${trail_opacity})`;
-                    this.context.beginPath();
-                    this.context.arc(
-                        this.origin_x + pi.trail[j].x,
-                        this.origin_y + pi.trail[j].y,
-                        trail_size,
-                        0, 2*Math.PI
-                    );
-                    this.context.fill();
-                    trail_size = Math.max(trail_size - trail_size_mod, 0);
-                    trail_opacity = Math.max(trail_opacity - trail_opacity_mod, 0);
-                }
-
-                if(j <= 0){
-                    j = pi.trail_length - 1;
-                }else{
-                    j--;
-                }
-
-            }while(j !== pi.trail_i);
+            // this.drawTrail(pi);
 
             // draw particle
-            this.context.fillStyle = 'magenta';
+            this.context.fillStyle = pi.color;
             this.context.beginPath();
             this.context.arc(x, y, pi.size, 0, 2*Math.PI);
             this.context.fill();
 
             // draw velocity
-            this.context.strokeStyle = 'green';
-            this.context.beginPath();
-            this.context.moveTo(x, y);
-            this.context.lineTo(x + (pi.vx * 5), y + (pi.vy * 5));
-            this.context.stroke();
+            // this.context.strokeStyle = 'green';
+            // this.context.beginPath();
+            // this.context.moveTo(x, y);
+            // this.context.lineTo(x + (pi.vx), y + (pi.vy));
+            // this.context.stroke();
 
             // draw acc
-            this.context.strokeStyle = 'red';
-            this.context.beginPath();
-            this.context.moveTo(x, y);
-            this.context.lineTo(x + (pi.ax * 100), y + (pi.ay * 100));
-            this.context.stroke();
+            // this.context.strokeStyle = 'red';
+            // this.context.beginPath();
+            // this.context.moveTo(x, y);
+            // this.context.lineTo(x + (pi.ax), y + (pi.ay));
+            // this.context.stroke();
+
+            // draw force
+            // this.context.strokeStyle = 'blue';
+            // this.context.beginPath();
+            // this.context.moveTo(x, y);
+            // this.context.lineTo(x + (pi.fx / 100), y + (pi.fy / 100));
+            // this.context.stroke();
 
             // draw tooltips
-            this.context.fillStyle = 'green';
-            this.context.fillText(`${pi.label} ${Math.round(pi.x)},${Math.round(pi.y)}`, x + 15, y + 15);
+            // this.context.fillStyle = 'green';
+            // this.context.fillText(`${pi.label} ${Math.round(pi.x)},${Math.round(pi.y)}`, x + 15, y + 15);
         }
 
 
 
+
+    }
+
+    drawTrail(pi){
+
+        if(pi.trail_length === 0) return;
+
+        // draw trail
+        let trail_size = pi.size,
+            trail_size_mod = pi.size / pi.trail_length,
+            trail_opacity = 0.5,
+            trail_opacity_mod = pi.vel() / 100,
+            j = pi.trail_i;
+
+        do{
+            if(pi.trail[j]){
+                this.context.fillStyle = `rgba(255,255,255,${trail_opacity})`;
+                this.context.beginPath();
+                this.context.arc(
+                    this.origin_x + pi.trail[j].x,
+                    this.origin_y + pi.trail[j].y,
+                    trail_size,
+                    0, 2*Math.PI
+                );
+                this.context.fill();
+                trail_size = Math.max(trail_size - trail_size_mod, 0);
+                trail_opacity = Math.max(trail_opacity - trail_opacity_mod, 0);
+            }
+
+            if(j <= 0){
+                j = pi.trail_length - 1;
+            }else{
+                j--;
+            }
+
+        }while(j !== pi.trail_i);
 
     }
 
@@ -244,24 +247,62 @@ class Simulator {
 
 }
 
+// See http://physics.princeton.edu/~fpretori/Nbody/code.htm
 class Particle {
 
     trail_i = 0;
 
 
     constructor(params){
-        this.color = params.color || '#fff';
+
         this.x = params.x || 0;
         this.y = params.y || 0;
-        this.m = params.m || 0;
         this.vx = params.vx || 0;
         this.vy = params.vy || 0;
         this.ax = params.ax || 0;
         this.ay = params.ay || 0;
+        this.fx = params.fx || 0;
+        this.fy = params.fy || 0;
+
+        this.mass = params.mass || 0;
         this.size = params.size || 4;
+
         this.label = params.label || 'X';
-        this.trail_length = 10;
+        this.color = params.color || '#fff';
+        this.trail_length = 0;
         this.trail = new Array(this.trail_length);
+    }
+
+    /**
+     * Update velocity and position for timestep dt
+     */
+    updateVectors(dt){
+
+        this.ax = this.fx / this.mass;
+        this.ay = this.fy / this.mass;
+        this.vx += dt * this.ax;
+        this.vy += dt * this.ay;
+        this.x += this.vx * dt;
+        this.y += this.vy * dt;
+
+    }
+
+    resetForce(){
+        this.fx = 0;
+        this.fy = 0;
+    }
+
+    /**
+     * Add to the net force b is acting on a
+     */
+    addForce(b){
+        let a = this;
+        const dx = b.x - a.x;
+        const dy = b.y - a.y;
+        const d = Math.sqrt(dx*dx + dy*dy);
+        const f = (GAMMA * a.mass * b.mass) / (d*d + EPS);
+        a.fx += f * dx / d;
+        a.fy += f * dy / d;
     }
 
     acc(){
@@ -270,6 +311,10 @@ class Particle {
 
     vel(){
         return Math.sqrt(this.vx*this.vx + this.vy * this.vy);
+    }
+
+    for(){
+        return Math.sqrt(this.fx*this.fx + this.fy * this.fy);
     }
 
 }

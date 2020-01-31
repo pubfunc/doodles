@@ -12,6 +12,9 @@ class Controls {
         document.getElementById('run_button')
             .addEventListener('click', () => this.toggleRun());
 
+        document.getElementById('reset_button')
+            .addEventListener('click', () => this.clickReset());
+
         canvas$.addEventListener('mousedown', (event) => {
             console.log('event');
             this.isDragging = true;
@@ -35,6 +38,9 @@ class Controls {
         this.sim.is_running ? this.sim.stop() : this.sim.start();
     }
 
+    clickReset(){
+        this.sim.reset();
+    }
 
     _onDrag(event){
 
