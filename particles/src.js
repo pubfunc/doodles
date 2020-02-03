@@ -127,7 +127,7 @@ function setup(){
   // });
 
   $canvas.addEventListener('click', function(e){
-    massives.push({
+    particles.push({
       pos_x: e.offsetX,
       pos_y: e.offsetY,
       weight: 1
@@ -163,11 +163,17 @@ function setup(){
     for (var i=0;i<data.length;i+=4)
     {
       var avg = (data[i] + data[i +1] + data[i +2]) / 3;
-      if(Math.random() < 0.2 && avg < 200 && data[i + 3] > 0.1){
+      if(Math.random() < 0.2 && avg < 200){
         var px = (i / 4) % iw;
         var py = ((i / 4) / iw) + 20;
 
-        particles.push(new Particle(Math.round(px / iw * WIDTH),Math.round(py / ih * h), 'rgb(' + [Math.round(Math.random() * 250), Math.round(Math.random() * 250), Math.round(Math.random() * 250)].join(',') + ')'));
+        particles.push(
+          new Particle(
+            Math.round(px / iw * WIDTH),
+            Math.round(py / ih * h),
+            randomColor()
+          )
+        );
 
         pixels++;
       }
@@ -180,8 +186,7 @@ function setup(){
     requestAnimationFrame(draw);
   };
 
-  // image.src = 'cc.png'; //300,232
-  image.src = 'path6250.png'; //300,232
+  image.src = IMAGE_SRC;
 }
 
 function draw(timestamp){
@@ -196,15 +201,15 @@ function draw(timestamp){
   context.fillStyle = '#555';
 
   // draw massives
-  for(i = 0; i < massives.length; i++){
-    //draw a circle
-    if(massives[i].pos_x > 0 && massives[i].pos_y > 0 && massives[i].pos_x < WIDTH && massives[i].pos_y < HEIGHT){
-      context.beginPath();
-      context.arc(massives[i].pos_x, massives[i].pos_y, 10, 0, Math.PI*2, true);
-      context.closePath();
-      context.fill();
-    }
-  }
+  // for(i = 0; i < massives.length; i++){
+  //   //draw a circle
+  //   if(massives[i].pos_x > 0 && massives[i].pos_y > 0 && massives[i].pos_x < WIDTH && massives[i].pos_y < HEIGHT){
+  //     context.beginPath();
+  //     context.arc(massives[i].pos_x, massives[i].pos_y, 10, 0, Math.PI*2, true);
+  //     context.closePath();
+  //     context.fill();
+  //   }
+  // }
 
   context.fillStyle = '#ffffff';
 
@@ -227,12 +232,12 @@ function draw(timestamp){
 
 }
 
-function toColor(num) {
-    num >>>= 0;
-    var b = num & 0xFF,
-        g = (num & 0xFF00) >>> 8,
-        r = (num & 0xFF0000) >>> 16;
-    return "rgb(" + [r, g, b].join(",") + ")";
+function randomColor() {
+  return 'rgb(' + [
+    Math.round(Math.random() * 205 + 50),
+    Math.round(Math.random() * 205 + 50),
+    Math.round(Math.random() * 205 + 50)
+  ].join(',') + ')';
 }
 
 setup();
