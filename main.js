@@ -26,8 +26,8 @@ for(let i = 0; i < 1000; i++){
         x: (Math.random() - 0.5) * 500,
         y: (Math.random() - 0.5) * 500,
         mass: 0.01,
-        vx: 0,
-        vy: 0,
+        vx: (Math.random() * 10) - 5,
+        vy: (Math.random() * 10) - 5,
         size: Math.random() * 3,
         color: `rgb(${Math.random() * 255},${Math.random() * 255},${Math.random() * 255})`
     });

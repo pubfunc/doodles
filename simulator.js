@@ -1,5 +1,5 @@
 
-const GAMMA = 5; // 6.673e-11; // gravitational constant
+const GAMMA = 3.5; // 6.673e-11; // gravitational constant
 const SOLAR_MASS = 1.98892e30;
 const EPS = 20; //1.98892e30; // softening parameter (to avoid infinities)
 
